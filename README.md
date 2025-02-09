@@ -177,6 +177,9 @@ O objeto **`Events`** representa eventos do sistema e contém os seguintes campo
   - `time`: Momento em que o evento foi registrado no telegram.
   - `timezone_offset`: Diferença de fuso horário aplicada ao evento.
 
+
+### 🛈 Mais detalhes sobre os objetos acesse a [documentação específica](./sensorlog/README.md)
+
 ---
 
 ## 📚 Exemplos de Uso
