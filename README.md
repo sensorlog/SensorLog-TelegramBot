@@ -14,7 +14,7 @@ A integração com o sistema de [sensor.log](https://sensor.log.br) é feita atr
   - [🔑 Obtenção do Token do Bot no Telegram](#-obtenção-do-token-do-bot-no-telegram)
   - [📩 Adicionando o Bot ao Canal de Log](#-adicionando-o-bot-ao-canal-de-log)
 - [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-- [✍️ Estrutura dos Objetos](#-estrutura-dos-objetos)
+- [📝 Estrutura dos Objetos](#-estrutura-dos-objetos)
   - [📊 Estrutura de "Values"](#-estrutura-de-values)
   - [⚡ Estrutura de "Events"](#-estrutura-de-events)
 - [📚 Exemplos de Uso](#-exemplos-de-uso)
@@ -120,7 +120,7 @@ Adicione seu bot a um canal de LOG de onde deseja receber os dados dos sensores.
 
 ---
 
-## ✍️ Estrutura dos Objetos
+## 📝 Estrutura dos Objetos
 
 ### 📊 Estrutura de "Values"
 
