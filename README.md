@@ -108,6 +108,18 @@ Adicione seu bot a um canal de LOG de onde deseja receber os dados dos sensores.
 
 ---
 
+## 📂 Estrutura do Projeto
+
+- **`basic.py`**: Processa eventos do Telegram e exibe os dados no console.
+- **`http_post.py`**: Envia dados para URLs específicas usando HTTP POST.
+- **`http_server.py`**: Recebe os dados enviados por http_post.py.
+- **`SQL_insert.py`**: Insere dados recebidos em um banco de dados SQLite.
+- **`create_db.py`**: Script para criar o banco de dados e as tabelas necessárias.
+- **`whatsapp.py`**: Envia os eventos recebidos para o WhatsApp.
+- **`sensorlog/`**: Módulos para processamento de eventos e valores dos sensores.
+
+---
+
 ## ✍️ Estrutura dos Objetos
 
 ### 📊 Estrutura de "Values"
@@ -164,18 +176,6 @@ O objeto **`Events`** representa eventos do sistema e contém os seguintes campo
 - **Indicação de horário:**
   - `time`: Momento em que o evento foi registrado no telegram.
   - `timezone_offset`: Diferença de fuso horário aplicada ao evento.
-
----
-
-## 📂 Estrutura do Projeto
-
-- **`basic.py`**: Processa eventos do Telegram e exibe os dados no console.
-- **`http_post.py`**: Envia dados para URLs específicas usando HTTP POST.
-- **`http_server.py`**: Recebe os dados enviados por http_post.py.
-- **`SQL_insert.py`**: Insere dados recebidos em um banco de dados SQLite.
-- **`create_db.py`**: Script para criar o banco de dados e as tabelas necessárias.
-- **`whatsapp.py`**: Envia os eventos recebidos para o WhatsApp.
-- **`sensorlog/`**: Módulos para processamento de eventos e valores dos sensores.
 
 ---
 
