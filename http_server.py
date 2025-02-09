@@ -1,3 +1,9 @@
+"""
+SensorLog-TelegramBot
+
+Este script recebe os dados enviados por http_post.py.
+"""
+
 from fastapi import FastAPI, Request
 
 app = FastAPI()

@@ -1,3 +1,9 @@
+"""
+SensorLog-TelegramBot
+
+Este script processa eventos do Telegram e exibe os dados no console.
+"""
+
 import logging
 from telebot import TeleBot, types
 from sensorlog import Decode, Events, Values, EVENT_LEVEL, EVENT_COMMUNICATION
@@ -16,15 +22,15 @@ logger = logging.getLogger(__name__)
 TELEGRAM_TOKEN = "SEU_TOKEN_AQUI"
 
 # Adicione seu bot num canal de LOG.
-# Quando um sensor fizer alguma Evento o método process_post_event será chamado
-# com o evento de notificação do sensor.
-# Quando uma publicação de valores de sensor for publicada,
-# o método process_post_values será chamado com os valores dos sensores
+# Quando uma publicação de evento for publicada, a função process_channel_message_event
+# será chamada com o evento do sensor.
+# Quando uma publicação de valores de sensor for publicada, a função process_channel_message_values
+# será chamada com os valores dos sensores
 
 bot = TeleBot(token=TELEGRAM_TOKEN)
 
 
-def process_post_event(event: Events):
+def process_channel_message_event(event: Events):
     """
     Processa eventos recebidos do canal do Telegram.
 
@@ -47,10 +53,11 @@ def process_post_event(event: Events):
             print(f"Evento desconhecido:\n{event}")
     except Exception as e:
         logger.error(f"Erro ao processar evento: {e}")
-    logger.info("Finalizando processamento do evento")
+    finally:
+        logger.info("Finalizando processamento do evento")
 
 
-def process_post_values(values: Values):
+def process_channel_message_values(values: Values):
     """
     Processa valores de sensores recebidos do canal do Telegram.
 
@@ -64,7 +71,8 @@ def process_post_values(values: Values):
         print(f"Valores de sensores recebidos:\n{values}")
     except Exception as e:
         logger.error(f"Erro ao processar valores: {e}")
-    logger.info("Finalizando processamento dos valores")
+    finally:
+        logger.info("Finalizando processamento dos valores")
 
 
 def filter_direct_channel_text_signed(m: types.Message) -> bool:
@@ -87,7 +95,7 @@ def filter_direct_channel_text_signed(m: types.Message) -> bool:
 
 
 @bot.channel_post_handler(func=filter_direct_channel_text_signed)
-def handle_channel_post(m: types.Message):
+def handle_channel_message(m: types.Message):
     """
     Manipula postagens de canal filtradas.
 
@@ -98,12 +106,13 @@ def handle_channel_post(m: types.Message):
     try:
         message = Decode(m)
         if isinstance(message.var_data, Values):
-            process_post_values(message.var_data)
+            process_channel_message_values(message.var_data)
         elif isinstance(message.var_data, Events):
-            process_post_event(message.var_data)
+            process_channel_message_event(message.var_data)
     except Exception as e:
         logger.error(f"Erro ao manipular mensagem do canal: {e}")
-    logger.info("Finalizando manipulação da mensagem do canal")
+    finally:
+        logger.info("Finalizando manipulação da mensagem do canal")
 
 
 logger.info("Bot iniciado. Aguardando mensagens do canal")

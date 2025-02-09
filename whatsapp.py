@@ -1,3 +1,9 @@
+"""
+SensorLog-TelegramBot
+
+Este script envia os eventos recebidos para o WhatsApp.
+"""
+
 import requests
 import logging
 from telebot import TeleBot, types
@@ -27,8 +33,8 @@ PHONE = "SEU_NUMERO_TELEFONE"
 CALLMEBOT_API_URL = f"https://api.callmebot.com/whatsapp.php"
 
 # Adicione seu bot num canal de LOG.
-# Quando um sensor fizer alguma Evento o método process_post_event será chamado
-# com o evento de notificação do sensor.
+# Quando uma publicação de evento for publicada, a função process_channel_message_event
+# será chamada com o evento do sensor.
 
 bot = TeleBot(token=TELEGRAM_TOKEN)
 
@@ -55,7 +61,7 @@ def send_get_request(url, data):
         logger.info("Finalizado envio de solicitação GET")
 
 
-def process_post_event(event: Events):
+def process_channel_message_event(event: Events):
     """
     Processa eventos recebidos do canal do Telegram.
 
@@ -78,7 +84,8 @@ def process_post_event(event: Events):
         send_get_request(url, data)
     except Exception as e:
         logger.error(f"Erro ao processar evento: {e}")
-    logger.info("Finalizando processamento do evento")
+    finally:
+        logger.info("Finalizando processamento do evento")
 
 
 def filter_direct_channel_text_signed(m: types.Message) -> bool:
@@ -101,7 +108,7 @@ def filter_direct_channel_text_signed(m: types.Message) -> bool:
 
 
 @bot.channel_post_handler(func=filter_direct_channel_text_signed)
-def handle_channel_post(m: types.Message):
+def handle_channel_message(m: types.Message):
     """
     Manipula postagens de canal filtradas.
 
@@ -112,7 +119,7 @@ def handle_channel_post(m: types.Message):
     try:
         message = Decode(m)
         if isinstance(message.var_data, Events):
-            process_post_event(message.var_data)
+            process_channel_message_event(message.var_data)
     except Exception as e:
         logger.error(f"Erro ao manipular mensagem do canal: {e}")
     finally:

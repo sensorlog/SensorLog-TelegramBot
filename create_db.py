@@ -1,3 +1,9 @@
+"""
+SensorLog-TelegramBot
+
+Este script cria o banco de dados e as tabelas necessárias.
+"""
+
 import sqlite3
 
 # Nome do arquivo de banco de dados

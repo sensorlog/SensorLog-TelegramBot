@@ -1,3 +1,9 @@
+"""
+SensorLog-TelegramBot
+
+Este script insere dados recebidos em um banco de dados SQLite.
+"""
+
 import sqlite3
 import logging
 from telebot import TeleBot, types
@@ -18,10 +24,10 @@ TELEGRAM_TOKEN = "SEU_TOKEN_AQUI"
 DB_NAME = "sensordata.db"
 
 # Adicione seu bot num canal de LOG.
-# Quando um sensor fizer alguma Evento o método process_post_event será chamado
-# com o evento de notificação do sensor.
-# Quando uma publicação de valores de sensor for publicada,
-# o método process_post_values será chamado com os valores dos sensores
+# Quando uma publicação de evento for publicada, a função process_channel_message_event
+# será chamada com o evento do sensor.
+# Quando uma publicação de valores de sensor for publicada, a função process_channel_message_values
+# será chamada com os valores dos sensores
 
 bot = TeleBot(token=TELEGRAM_TOKEN)
 
@@ -52,10 +58,11 @@ def insert_into_db(table, data):
         logger.info(f"Dados inseridos na tabela {table}: {data}")
     except Exception as e:
         logger.error(f"Erro ao inserir dados no banco de dados: {e}")
-    logger.info("Finalizando inserção no banco de dados")
+    finally:
+        logger.info("Finalizando inserção no banco de dados")
 
 
-def process_post_event(event: Events):
+def process_channel_message_event(event: Events):
     """
     Processa eventos recebidos do canal do Telegram.
 
@@ -81,10 +88,11 @@ def process_post_event(event: Events):
         insert_into_db("events", data)
     except Exception as e:
         logger.error(f"Erro ao processar evento: {e}")
-    logger.info("Finalizando processamento do evento")
+    finally:
+        logger.info("Finalizando processamento do evento")
 
 
-def process_post_values(values: Values):
+def process_channel_message_values(values: Values):
     """
     Processa valores de sensores recebidos do canal do Telegram.
 
@@ -118,7 +126,8 @@ def process_post_values(values: Values):
         insert_into_db("sensor_values", data)
     except Exception as e:
         logger.error(f"Erro ao processar valores: {e}")
-    logger.info("Finalizando processamento dos valores")
+    finally:
+        logger.info("Finalizando processamento dos valores")
 
 
 def filter_direct_channel_text_signed(m: types.Message) -> bool:
@@ -141,7 +150,7 @@ def filter_direct_channel_text_signed(m: types.Message) -> bool:
 
 
 @bot.channel_post_handler(func=filter_direct_channel_text_signed)
-def handle_channel_post(m: types.Message):
+def handle_channel_message(m: types.Message):
     """
     Manipula postagens de canal filtradas.
 
@@ -154,12 +163,13 @@ def handle_channel_post(m: types.Message):
     try:
         message = Decode(m)
         if isinstance(message.var_data, Values):
-            process_post_values(message.var_data)
+            process_channel_message_values(message.var_data)
         elif isinstance(message.var_data, Events):
-            process_post_event(message.var_data)
+            process_channel_message_event(message.var_data)
     except Exception as e:
         logger.error(f"Erro ao manipular mensagem do canal: {e}")
-    logger.info("Finalizando manipulação da mensagem do canal")
+    finally:
+        logger.info("Finalizando manipulação da mensagem do canal")
 
 
 logger.info("Bot iniciado. Aguardando mensagens do canal")
