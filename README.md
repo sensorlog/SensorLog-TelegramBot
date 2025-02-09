@@ -14,6 +14,9 @@ A integração com o sistema de [sensor.log](https://sensor.log.br) é feita atr
   - [🔑 Obtenção do Token do Bot no Telegram](#🔑-obtenção-do-token-do-bot-no-telegram)
   - [📩 Adicionando o Bot ao Canal de Log](#📩-adicionando-o-bot-ao-canal-de-log)
 - [📂 Estrutura do Projeto](#📂-estrutura-do-projeto)
+- [✍️ Estrutura dos Objetos](#✍️-estrutura-dos-objetos)
+  - [📊 Estrutura de "Values"](#📊-estrutura-de-values)
+  - [⚡ Estrutura de "Events"](#⚡-estrutura-de-events)
 - [📚 Exemplos de Uso](#📚-exemplos-de-uso)
   - [▶️ Exemplo Básico](#▶️-exemplo-básico)
   - [🌐 Exemplo HTTP POST](#🌐-exemplo-http-post)
@@ -102,6 +105,66 @@ Antes de começar, certifique-se de ter:
 ### 📩 Adicionando o Bot ao Canal de Log
 
 Adicione seu bot a um canal de LOG de onde deseja receber os dados dos sensores.
+
+---
+
+## ✍️ Estrutura dos Objetos
+
+### 📊 Estrutura de "Values"
+
+O objeto **`Values`** representa os valores lidos pelo dispositivo e contém os seguintes campos:
+
+- **Identificação e origem:**
+  - `channel_id`: ID único do canal no Telegram.
+  - `channel_name`: Nome do canal, utilizado para identificar o cliente.
+  - `bot_name`: Nome do bot, que funciona como gateway de comunicação.
+  - `device_name`: Nome do reservatório.
+
+- **Medições do reservatório:**
+  - `level`: Nível do reservatório processado (float ou `None`).
+  - `raw_level`: Nível bruto do reservatório antes do processamento (float ou `None`).
+  - `distance`: Distância entre o transdutor e a superfície da água (float ou `None`).
+
+- **Taxas de variação:**
+  - `speed1`: Primeira taxa de variação do nível do reservatório (int ou `None`).
+  - `speed2`: Segunda taxa de variação do nível do reservatório (int ou `None`).
+
+- **Leituras adicionais do terminal:**
+  - `t0`: Temperatura inicial medida pelo terminal (float ou `None`).
+  - `t1`: Temperatura final medida pelo terminal (float ou `None`).
+  - `v0`: Tensão inicial da bateria do terminal (float ou `None`).
+  - `v1`: Tensão final da bateria do terminal (float ou `None`).
+
+- **Qualidade do sinal:**
+  - `snr`: Relação sinal-ruído recebida pelo terminal (int ou `None`).
+  - `rssi`: Intensidade do sinal recebido pelo terminal (int ou `None`).
+  - `snr_gw`: Relação sinal-ruído recebida pelo gateway (int ou `None`).
+  - `rssi_gw`: Intensidade do sinal recebido pelo gateway (int ou `None`).
+
+- **Indicação de horário:**
+  - `time`: Momento em que a leitura foi registrada no telegram.
+  - `timezone_offset`: Diferença de fuso horário aplicada a leitura.
+
+
+### ⚡ Estrutura de "Events"
+
+O objeto **`Events`** representa eventos do sistema e contém os seguintes campos:
+
+- **Identificação e origem:**
+  - `channel_id`: ID único do canal no Telegram.
+  - `channel_name`: Nome do canal, utilizado para identificar o cliente.
+  - `bot_name`: Nome do bot que funciona como gateway de comunicação.
+  - `device_name`: Nome do dispositivo associado ao evento.
+
+- **Informações do evento:**
+  - `event_type`: Tipo do evento (inteiro representando a categoria do evento).
+  - `event_flag`: Indicador opcional associado ao evento (string).
+  - `event_text`: Descrição do evento (string).
+
+- **Indicação de horário:**
+  - `time`: Momento em que o evento foi registrado no telegram.
+  - `timezone_offset`: Diferença de fuso horário aplicada ao evento.
+
 ---
 
 ## 📂 Estrutura do Projeto
