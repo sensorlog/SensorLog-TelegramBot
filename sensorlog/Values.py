@@ -18,6 +18,8 @@ class Values(Id):
         self.rssi_gw: Optional[int] = None
         self.speed1: Optional[int] = None
         self.speed2: Optional[int] = None
+        self.counter: Optional[int] = None
+        self.digital_input: Optional[int] = None
 
     def __str__(self):
         return (
@@ -34,5 +36,7 @@ class Values(Id):
             f"  snr_gw: {self.snr_gw}\n"
             f"  rssi_gw: {self.rssi_gw}\n"
             f"  speed1: {self.speed1}\n"
-            f"  speed2: {self.speed2}"
+            f"  speed2: {self.speed2}\n"
+            f"  counter: {self.counter}\n"
+            f"  digital_input: {self.digital_input}"
         )

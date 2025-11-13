@@ -18,11 +18,28 @@ class SetValues(Values):
             "RSSI(gw)": ("rssi_gw", "int"),
             "Δd/Δt₍₋₁₎": ("speed1", "int"),
             "Δd/Δt₍₋₂₎": ("speed2", "int"),
+            "Contador": ("counter", "int"),
+            "Entrada Digital": ("digital_input", "digital"),
         }
 
     def set_value(self, key, value):
-        translated_key = self.__translate.get(key)
-        if translated_key:
-            value_type = translated_key[1]
-            new_value = float(value) if value_type == "float" else int(value)
-            setattr(self, translated_key[0], new_value)
+        translation = self.__translate.get(key)
+        if translation:
+            key, value_type = translation
+            new_value = None
+
+            if value_type == "float":
+                new_value = float(value)
+            elif value_type == "int":
+                new_value = int(value)
+            elif value_type == "digital":
+                state = str(value).strip()
+                if state:
+                    if state[0] == "A":  # Aberta
+                        new_value = int(1)
+                    elif state[0] == "F":  # Fechada
+                        new_value = int(0)
+            else:
+                new_value = str(value).strip()
+            if new_value is not None:
+                setattr(self, key, new_value)

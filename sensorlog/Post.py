@@ -37,15 +37,15 @@ class Decode(object):
             log_values = lines[1:]
             # Parsing the lines
             for line in log_values:
-                key_value = line.split(":")
+                key_value = line.split(":", 1)
                 if len(key_value) == 2:
+                    key = key_value[0].strip()
+                    raw_value = key_value[1].strip()
+                    numeric_match = re.search(r"-?\d+(\.\d+)?", raw_value)
+                    parsed_value = numeric_match.group() if numeric_match else raw_value
                     try:
-                        key = key_value[0].strip()
-                        value = re.search(
-                            r"-?\d+(\.\d+)?", key_value[1].strip()
-                        ).group()
-                        result.set_value(key, value)
-                    except:
+                        result.set_value(key, parsed_value)
+                    except (ValueError, AttributeError):
                         pass
 
             self.var_data = result
