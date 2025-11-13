@@ -122,6 +122,8 @@ def process_channel_message_values(values: Values):
             "rssi": values.rssi,
             "snr_gw": values.snr_gw,
             "rssi_gw": values.rssi_gw,
+            "counter": values.counter,
+            "digital_input": values.digital_input,
         }
         insert_into_db("sensor_values", data)
     except Exception as e:

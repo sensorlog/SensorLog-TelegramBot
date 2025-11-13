@@ -50,7 +50,9 @@ CREATE TABLE IF NOT EXISTS sensor_values (
     snr INTEGER,
     rssi INTEGER,
     snr_gw INTEGER,
-    rssi_gw INTEGER,   
+    rssi_gw INTEGER,
+    counter INTEGER,
+    digital_input INTEGER,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 ''')
