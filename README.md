@@ -146,6 +146,10 @@ O objeto **`Values`** representa os valores lidos pelo dispositivo e contém os 
   - `t1`: Temperatura final medida pelo terminal (float ou `None`).
   - `v0`: Tensão inicial da bateria do terminal (float ou `None`).
   - `v1`: Tensão final da bateria do terminal (float ou `None`).
+-
+ **Entradas auxiliares:**
+  - `counter`: Totalizador de pulsos do contador digital (int ou `None`).
+  - `digital_input`: Estado da entrada digital (int ou `None`), onde `1` representa "Aberta" e `0` representa "Fechada".
 
 - **Qualidade do sinal:**
   - `snr`: Relação sinal-ruído recebida pelo terminal (int ou `None`).
