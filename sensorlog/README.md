@@ -79,6 +79,8 @@ Values(**kwargs)
 ### Atributos
 - `level`, `raw_level`, `distance`, `t0`, `t1`, `v0`, `v1`: Dados de sensores (float).
 - `snr`, `rssi`, `snr_gw`, `rssi_gw`, `speed1`, `speed2`: Métricas do sistema (int).
+- `counter`: Número de pulsos acumulado (int).
+- `digital_input`: Estado da entrada digital, normalizado para `1` (Aberta) ou `0` (Fechada).
 
 ### Métodos
 - `__str__()`: Retorna uma representação detalhada das medições e atributos.
@@ -127,4 +129,3 @@ Decode(m: types.Message)
 Essas classes são projetadas para integrar dados de sensores e eventos com sistemas de mensagens. Certifique-se de inicializar os objetos com os dados corretos para garantir a funcionalidade esperada.
 
 Documentação criada para facilitar a compreensão e uso das classes no diretório sensorlog.
-
