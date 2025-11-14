@@ -7,27 +7,12 @@ Este script processa eventos do Telegram e exibe os dados no console.
 import logging
 from telebot import TeleBot, types
 from sensorlog import Decode, Events, Values, EVENT_LEVEL, EVENT_COMMUNICATION
+from config import settings
 
-# Detalhes sobre a API do telegram
-# https://core.telegram.org/bots/api
-
-# Detalhes sobre a lib telebot
-# https://github.com/eternnoir/pyBotAPI
-
-# Configuração do logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Substitua o token pelo seu token criado com o BotFather (https://t.me/BotFather)
-TELEGRAM_TOKEN = "SEU_TOKEN_AQUI"
-
-# Adicione seu bot num canal de LOG.
-# Quando uma publicação de evento for publicada, a função process_channel_message_event
-# será chamada com o evento do sensor.
-# Quando uma publicação de valores de sensor for publicada, a função process_channel_message_values
-# será chamada com os valores dos sensores
-
-bot = TeleBot(token=TELEGRAM_TOKEN)
+bot = TeleBot(token=settings.telegram_token)
 
 
 def process_channel_message_event(event: Events):

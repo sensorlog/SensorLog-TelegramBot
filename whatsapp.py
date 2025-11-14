@@ -9,34 +9,13 @@ import logging
 from telebot import TeleBot, types
 from sensorlog import Decode, Events
 from datetime import datetime, timedelta
+from config import settings
 
-# Detalhes sobre a API do telegram
-# https://core.telegram.org/bots/api
-
-# Detalhes sobre a lib telebot
-# https://github.com/eternnoir/pyBotAPI
-
-# Configuração do logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Substitua o token pelo seu token criado com o BotFather (https://t.me/BotFather)
-TELEGRAM_TOKEN = "SEU_TOKEN_AQUI"
-
-# Substitua pela chave da API registrada em https://www.callmebot.com/
-API_KEY = "SEU_API_KEY_CALLMEBOT"
-
-# Substitua o telefone pelo seu número de telefone
-PHONE = "SEU_NUMERO_TELEFONE"
-
-# URL de envio de eventos do CallMeBot
 CALLMEBOT_API_URL = f"https://api.callmebot.com/whatsapp.php"
-
-# Adicione seu bot num canal de LOG.
-# Quando uma publicação de evento for publicada, a função process_channel_message_event
-# será chamada com o evento do sensor.
-
-bot = TeleBot(token=TELEGRAM_TOKEN)
+bot = TeleBot(token=settings.telegram_token)
 
 
 def send_get_request(url, data):
@@ -45,7 +24,7 @@ def send_get_request(url, data):
 
     Args:
         url (str): A URL para onde a solicitação GET será enviada.
-        data (str): Os dados a serem enviados como parâmetros na solicitação GET.
+        data (dict): Os dados a serem enviados como parâmetros na solicitação GET.
 
     Returns:
         None
@@ -77,8 +56,8 @@ def process_channel_message_event(event: Events):
         time = event.time.strftime("\n%d/%m/%Y %H:%M:%S") if diff_time > max_delay else ""
         message = f"*{event.channel_name}*\n{event.text}{time}"
         data = {
-            "phone": PHONE,
-            "apikey": API_KEY,
+            "phone": settings.callmebot_phone,
+            "apikey": settings.callmebot_api_key,
             "text": message,
         }
         send_get_request(url, data)

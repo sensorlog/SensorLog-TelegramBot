@@ -5,15 +5,11 @@ Este script cria o banco de dados e as tabelas necessárias.
 """
 
 import sqlite3
+from config import settings
 
-# Nome do arquivo de banco de dados
-DB_NAME = "sensordata.db"
-
-# Conexão com o banco de dados
-conn = sqlite3.connect(DB_NAME)
+conn = sqlite3.connect(settings.db_name)
 cursor = conn.cursor()
 
-# Criação da tabela 'events'
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,7 +26,6 @@ CREATE TABLE IF NOT EXISTS events (
 )
 ''')
 
-# Criação da tabela 'sensor_values'
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS sensor_values (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,8 +52,7 @@ CREATE TABLE IF NOT EXISTS sensor_values (
 )
 ''')
 
-# Confirma as mudanças e fecha a conexão
 conn.commit()
 conn.close()
 
-print(f"Banco de dados '{DB_NAME}' e tabelas criadas com sucesso.")
+print(f"Banco de dados '{settings.db_name}' e tabelas criadas com sucesso.")

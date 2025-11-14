@@ -9,28 +9,12 @@ import logging
 import json
 from telebot import TeleBot, types
 from sensorlog import Decode, Events, Values
+from config import settings
 
-# Detalhes sobre a API do telegram
-# https://core.telegram.org/bots/api
-
-# Detalhes sobre a lib telebot
-# https://github.com/eternnoir/pyBotAPI
-
-# Configuração do logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Substitua o token pelo seu token criado com o BotFather (https://t.me/BotFather)
-TELEGRAM_TOKEN = "SEU_TOKEN_AQUI"
-EVENT_URL = "http://localhost:9001/events"  # Substitua pela URL desejada
-VALUES_URL = "http://localhost:9001/values"  # Substitua pela URL desejada
-# Adicione seu bot num canal de LOG.
-# Quando uma publicação de evento for publicada, a função process_channel_message_event
-# será chamada com o evento do sensor.
-# Quando uma publicação de valores de sensor for publicada, a função process_channel_message_values
-# será chamada com os valores dos sensores
-
-bot = TeleBot(token=TELEGRAM_TOKEN)
+bot = TeleBot(token=settings.telegram_token)
 
 
 def send_post_request(url, data):
@@ -39,16 +23,16 @@ def send_post_request(url, data):
 
     Args:
         url (str): A URL para onde a solicitação POST será enviada.
-        data (str): Os dados a serem enviados na solicitação POST.
+        data (dict): Os dados a serem enviados na solicitação POST.
 
     Returns:
         None
     """
     logger.info("Iniciando envio de solicitação POST")
     try:
-        json_data = json.dumps(data)
-        logger.info(f"Enviando HTTP/POST para {url} com dados {json_data}")
-        response = requests.post(url, json=json_data, timeout=10)
+        serialized = json.dumps(data, ensure_ascii=False)
+        logger.info(f"Enviando HTTP/POST para {url} com dados {serialized}")
+        response = requests.post(url, json=data, timeout=10)
         logger.info(f"Resposta do servidor: {response.status_code}, {response.text}")
     except Exception as e:
         logger.error(f"Erro ao enviar solicitação POST: {e}")
@@ -66,7 +50,7 @@ def process_channel_message_event(event: Events):
     logger.info("Iniciando processamento do evento")
     try:
         logger.info(f"Processando evento")
-        url = EVENT_URL
+        url = settings.event_url
         data = {
             "time": event.time.timestamp(),
             "timezone_offset": event.timezone_offset.total_seconds(),
@@ -95,7 +79,7 @@ def process_channel_message_values(values: Values):
     logger.info("Iniciando processamento dos valores")
     try:
         logger.info(f"Processando valores")
-        url = VALUES_URL
+        url = settings.values_url
         data = {
             "time": values.time.timestamp(),
             "timezone_offset": values.timezone_offset.total_seconds(),

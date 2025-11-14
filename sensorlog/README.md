@@ -1,131 +1,97 @@
-# Documentação das Classes do Diretório sensorlog
+# Documentação do pacote `sensorlog`
 
-Este documento fornece uma visão geral e detalhada sobre as classes presentes no diretório sensorlog. O objetivo é auxiliar os desenvolvedores no entendimento e utilização dessas classes.
+As classes deste diretório compõem o núcleo reutilizável do SensorLog-TelegramBot. Elas abstraem os metadados das mensagens recebidas do Telegram, centralizam a normalização de valores e expõem estruturas prontas para serialização ou armazenamento.
+
+## Visão geral
+| Componente | Finalidade |
+| --- | --- |
+| `Id` | Guarda metadados compartilhados (horário, canal, bot, dispositivo). |
+| `Values` | Representa medições periódicas dos sensores. |
+| `SetValues` | Extensão de `Values` que traduz pares texto → atributo. |
+| `Events` | Representa alertas e notificações de dispositivos. |
+| `Decode` | Converte `types.Message` do TeleBot em `Values` ou `Events`. |
 
 ---
 
-## Classe: `Id`
+## Classe `Id`
+`Id` encapsula os atributos comuns a qualquer mensagem recebida.
 
-### Descrição
-A classe `Id` é uma classe base projetada para armazenar informações comuns relacionadas a identificadores e meta-informações, como horário, canal e dispositivos.
-
-### Construtor
 ```python
 Id(
-    time: Optional[datetime | int] = datetime.now(),
-    timezone_offset: Optional[timedelta | int] = timedelta(hours=0),
-    channel_id: Optional[int] = None,
-    channel_name: Optional[str] = None,
-    message_id: Optional[int] = None,
-    bot_id: Optional[int] = None,
-    bot_name: Optional[str] = None,
-    device_id: Optional[int] = None,
-    device_name: Optional[str] = None,
+    time: datetime | int | None = None,
+    timezone_offset: timedelta | int | None = timedelta(),
+    channel_id: int | None = None,
+    channel_name: str | None = None,
+    message_id: int | None = None,
+    bot_id: int | None = None,
+    bot_name: str | None = None,
+    device_id: int | None = None,
+    device_name: str | None = None,
 )
 ```
 
-### Atributos
-- `time`: Instante do evento (datetime ou timestamp).
-- `timezone_offset`: Diferença de fuso horário (timedelta ou segundos).
-- `channel_id`: ID do canal associado.
-- `channel_name`: Nome do canal associado.
-- `message_id`: ID da mensagem associada.
-- `bot_id`: ID do bot.
-- `bot_name`: Nome do bot.
-- `device_id`: ID do dispositivo.
-- `device_name`: Nome do dispositivo.
-
-### Métodos
-- Propriedades com getters e setters para `time` e `timezone_offset`.
-- `__str__()`: Retorna uma representação textual dos atributos.
+- `time` aceita `datetime` ou timestamp; valores `None` são convertidos para `datetime.now()`.
+- `timezone_offset` suporta `timedelta` ou segundos inteiros.
+- Os demais campos são preenchidos de acordo com o conteúdo do canal do Telegram.
 
 ---
 
-## Classe: `Events`
+## Classe `Values`
+Herda de `Id` e possui slots para todas as medições disponibilizadas pelos sensores:
 
-### Descrição
-Herdando de `Id`, a classe `Events` é projetada para representar eventos associados a dispositivos ou sistemas.
+- `level`, `raw_level`, `distance`
+- `t0`, `t1`, `v0`, `v1`
+- `snr`, `rssi`, `snr_gw`, `rssi_gw`
+- `speed1`, `speed2`, `counter`, `digital_input`
 
-### Construtor
+A representação textual (`__str__`) lista tanto os metadados quanto as leituras, facilitando logs.
+
+---
+
+## Classe `SetValues`
+Subclasse de `Values` que disponibiliza o método `set_value(key, value)`. Ele utiliza um dicionário privado de tradução (`__TRANSLATE`) para mapear as chaves humanizadas presentes nas mensagens do Telegram para os atributos internos. Conversões numéricas são aplicadas automaticamente (`_float`, `_int`, `_digital`).
+
+Utilize-a quando precisar popular leituras a partir de pares chave/valor extraídos do texto recebido.
+
+---
+
+## Classe `Events`
+Também deriva de `Id` e adiciona três campos:
+
+- `type`: categoria do evento (`EVENT_LEVEL`, `EVENT_COMMUNICATION` ou `EVENT_UNKNOWN`).
+- `flag`: símbolos presentes no texto original (✅, ⚠️ etc.).
+- `text`: descrição completa do alerta.
+
+O método `__str__` inclui os metadados herdados para manter rastreabilidade nos logs.
+
+---
+
+## Classe `Decode`
+Responsável por transformar `types.Message` em objetos de domínio:
+
+1. Divide o texto da mensagem por linhas.
+2. Tenta extrair `device_name` e os pares de valores utilizando `SetValues`.
+3. Caso não seja leitura de valores, busca um evento (linha inicial com símbolos + linha de descrição) e infere o `event_type` pela presença de palavras-chave como "nível" ou "comunicação".
+4. Expõe o resultado em `self.var_data`, que pode ser `Values`, `Events` ou `None`.
+
+---
+
+## Constantes disponibilizadas
+- `EVENT_LEVEL`, `EVENT_COMMUNICATION`, `EVENT_UNKNOWN`
+- `SYMBOL_CHECK`, `SYMBOL_WARNING`, `SYMBOL_DOWN_ARROW`, `SYMBOL_UP_ARROW`
+
+Essas constantes são úteis para normalizar a interpretação dos alertas e os ícones recebidos das mensagens.
+
+---
+
+## Exemplo de uso
 ```python
-Events(
-    event_type: int,
-    event_text: str,
-    event_flag: str = "",
-    **kwargs
-)
+from telebot import types
+from sensorlog import Decode
+
+def handle(message: types.Message):
+    decoded = Decode(message)
+    if decoded.var_data is None:
+        return
+    print(decoded.var_data)
 ```
-
-### Atributos
-- `type`: Tipo do evento (inteiro).
-- `flag`: Indicador do evento (string).
-- `text`: Texto descritivo do evento.
-
-### Métodos
-- `__str__()`: Inclui informações adicionais sobre o evento, além das propriedades herdadas.
-
----
-
-## Classe: `Values`
-
-### Descrição
-Herdando de `Id`, a classe `Values` é destinada a armazenar e manipular dados de sensores e suas respectivas medições.
-
-### Construtor
-```python
-Values(**kwargs)
-```
-
-### Atributos
-- `level`, `raw_level`, `distance`, `t0`, `t1`, `v0`, `v1`: Dados de sensores (float).
-- `snr`, `rssi`, `snr_gw`, `rssi_gw`, `speed1`, `speed2`: Métricas do sistema (int).
-- `counter`: Número de pulsos acumulado (int).
-- `digital_input`: Estado da entrada digital, normalizado para `1` (Aberta) ou `0` (Fechada).
-
-### Métodos
-- `__str__()`: Retorna uma representação detalhada das medições e atributos.
-
----
-
-## Classe: `SetValues`
-
-### Descrição
-Herdando de `Values`, a classe `SetValues` introduz um mecanismo de tradução e configuração de valores com base em chaves de texto.
-
-### Construtor
-```python
-SetValues(**kwargs)
-```
-
-### Atributos Privados
-- `__translate`: Dicionário de tradução de chaves para atributos internos.
-
-### Métodos
-- `set_value(key, value)`: Traduz e define o valor do atributo correspondente.
-
----
-
-## Classe: `Decode`
-
-### Descrição
-Responsável por interpretar mensagens recebidas e convertê-las em instâncias das classes `SetValues` ou `Events`.
-
-### Construtor
-```python
-Decode(m: types.Message)
-```
-
-### Atributos
-- `var_data`: Armazena a instância de `SetValues` ou `Events` criada a partir da mensagem.
-
-### Lógica de Funcionamento
-1. Divide o texto da mensagem em linhas.
-2. Analisa e extrai o nome do dispositivo e seus valores.
-3. Identifica e classifica eventos com base em padrões predefinidos.
-
----
-
-### Considerações Finais
-Essas classes são projetadas para integrar dados de sensores e eventos com sistemas de mensagens. Certifique-se de inicializar os objetos com os dados corretos para garantir a funcionalidade esperada.
-
-Documentação criada para facilitar a compreensão e uso das classes no diretório sensorlog.
